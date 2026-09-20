@@ -5,7 +5,45 @@ import readline from 'node:readline';
 import { Vlc } from './vlc.js';
 import { scanLibrary, fmtTime } from './library.js';
 
-const dir = resolve(process.argv[2] || process.env.MUSIC_DIR || './music');
+const args = process.argv.slice(2);
+
+if (args.includes('-h') || args.includes('--help')) {
+  console.log(`\x1b[1m\x1b[36mTerminal Music Player\x1b[0m v1.0.0
+A lightweight, terminal-based audio player powered by VLC rc interface.
+
+\x1b[1mUsage:\x1b[0m
+  node src/index.js [options] [music-directory]
+
+\x1b[1mOptions:\x1b[0m
+  -h, --help       Show this help message and exit
+  -v, --version    Show version number and exit
+
+\x1b[1mEnvironment Variables:\x1b[0m
+  MUSIC_DIR        Default directory to search for audio files (default: ./music)
+  VLC_PATH         Explicit path to VLC binary (auto-detected if omitted)
+  VLC_DEBUG        File path to record raw VLC stdin/stdout communications
+
+\x1b[1mKeybindings:\x1b[0m
+  Space, p, Enter  Toggle Play / Pause
+  s                Stop playback
+  n / b            Next / Previous track
+  ← / →            Seek -10s / +10s
+  + / -            Adjust volume
+  r                Cycle repeat mode (all → one → off)
+  z                Toggle shuffle mode
+  1 - 9            Quick jump to track 1-9
+  q, Ctrl+C        Quit player
+`);
+  process.exit(0);
+}
+
+if (args.includes('-v') || args.includes('--version')) {
+  console.log('terminal-music-player v1.0.0');
+  process.exit(0);
+}
+
+const targetArg = args.find((a) => !a.startsWith('-'));
+const dir = resolve(targetArg || process.env.MUSIC_DIR || './music');
 const tracks = scanLibrary(dir);
 
 if (tracks.length === 0) {
